@@ -1,27 +1,27 @@
 package auth
 
 import (
+	"errors"
 	"net/http"
 	"testing"
-	"errors"
 )
 
 func TestGetAPIKey(t *testing.T) {
 	cases := []struct {
-		input          http.Header
-		expected       string
-		expectedErr		 error
+		input       http.Header
+		expected    string
+		expectedErr error
 	}{
 		{
 			input: http.Header{
 				"Authorization": []string{"ApiKey 123456"},
 			},
-			expected: "123456",
+			expected:    "123456",
 			expectedErr: nil,
 		},
 		{
-			input: http.Header{},
-			expected: "",
+			input:       http.Header{},
+			expected:    "",
 			expectedErr: ErrNoAuthHeaderIncluded,
 		},
 	}
