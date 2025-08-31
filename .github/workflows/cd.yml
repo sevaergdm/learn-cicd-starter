@@ -7,6 +7,10 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest 
 
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -18,3 +22,16 @@ jobs:
 
       - name: Build app
         run: ./scripts/buildprod.sh
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: 'Set up google cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v3'
+
+      - name: Push image to registry
+        run: 'gcloud builds submit --tag us-central1-docker.pkg.dev/hidden-cosmos-470719-m2/notely-ar-repo/notely:latest .'
+
+
