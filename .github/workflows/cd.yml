@@ -7,6 +7,9 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest 
 
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -19,6 +22,9 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: "1.23.0"
+
+      - name: Install goose
+        run: go install github.com/pressly/goose/v3/cmd/goose@latest
 
       - name: Build app
         run: ./scripts/buildprod.sh
@@ -33,6 +39,9 @@ jobs:
 
       - name: Push image to registry
         run: 'gcloud builds submit --tag us-central1-docker.pkg.dev/hidden-cosmos-470719-m2/notely-ar-repo/notely:latest .'
+
+      - name: Run db migration
+        run: .scripts/migrateup.sh
 
       - name: Deploy to Cloud Run
         run: 'gcloud run deploy notely --image us-central1-docker.pkg.dev/hidden-cosmos-470719-m2/notely-ar-repo/notely:latest --region us-central1 --allow-unauthenticated --project hidden-cosmos-470719-m2 --max-instances=4'
